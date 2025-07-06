@@ -1,35 +1,57 @@
-import { createElement, useState } from 'react';
-// import ReactLogo from './assets/react.svg?react';
-import reactLogo from './assets/react.svg';
-import './App.css';
-import { ShowDate } from './components/ShowDate';
+import { useState } from 'react';
+import styles from './App.module.css';
+import { Information } from './components/information/information';
+import { Field } from './components/field/field';
 
 function App() {
-	const [count, setCount] = useState(0);
+	const [field, setField] = useState(['', '', '', '', '', '', '', '', '']);
+	const [currentPlayer, setCurrentPlayer] = useState('X');
+	const [isGameEnded, setIsGameEnded] = useState(false);
+	const [isDraw, setIsDraw] = useState(false);
+	const [winner, setWinner] = useState('');
 
-	const logoImg = createElement('img', { src: reactLogo });
-	const logoContainer = createElement('div', { key: 'logoContainer' }, logoImg);
-	const title = createElement('h1', { key: 'title' }, 'Vite + React');
-	const button = createElement(
-		'button',
-		{
-			key: 'button',
-			onClick: () => setCount((count) => count + 1),
-		},
-		`count is ${count}`,
+	const WIN_PATTERNS = [
+		[0, 1, 2],
+		[3, 4, 5],
+		[6, 7, 8],
+		[0, 3, 6],
+		[1, 4, 7],
+		[2, 5, 8],
+		[0, 4, 8],
+		[2, 4, 6],
+	];
+
+	const restartButtonHandler = () => {
+		setField(['', '', '', '', '', '', '', '', '']);
+		setCurrentPlayer('X');
+		setIsGameEnded(false);
+		setIsDraw(false);
+		setWinner('');
+	};
+
+	return (
+		<div className={styles.app}>
+			<Information
+				isGameEnded={isGameEnded}
+				isDraw={isDraw}
+				currentPlayer={currentPlayer}
+				winner={winner}
+			/>
+			<Field
+				field={field}
+				setField={setField}
+				currentPlayer={currentPlayer}
+				setCurrentPlayer={setCurrentPlayer}
+				isGameEnded={isGameEnded}
+				setIsGameEnded={setIsGameEnded}
+				isDraw={isDraw}
+				setIsDraw={setIsDraw}
+				setWinner={setWinner}
+				winPatterns={WIN_PATTERNS}
+			/>
+			<button onClick={() => restartButtonHandler()}>Начать заново</button>
+		</div>
 	);
-
-	const p = createElement('p', { key: 'p' }, `Edit src/App.jsx and save to test HMR`);
-
-	const card = createElement('div', { className: 'card', key: 'card' }, [button, p]);
-	const container = createElement('div', null, [
-		logoContainer,
-		title,
-		card,
-		ShowDate(),
-	]);
-
-	return container;
 }
 
 export default App;

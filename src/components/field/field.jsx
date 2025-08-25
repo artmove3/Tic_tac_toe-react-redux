@@ -1,61 +1,60 @@
-import PropTypes from 'prop-types';
-import { FieldLayout } from './fieldLayout';
+import { useState } from 'react';
+import { store } from '../../redux/createStore';
+import styles from './field.module.css';
 
-export const Field = ({
-	field,
-	setField,
-	currentPlayer,
-	setCurrentPlayer,
-	isGameEnded,
-	setIsGameEnded,
-	setWinner,
-	isDraw,
-	setIsDraw,
-	winPatterns,
-}) => {
+export const Field = () => {
+	const [fieldState, setFieldState] = useState({});
+	const { field, currentPlayer, isGameEnded, isDraw, info } = store.getState();
+
+	const WIN_PATTERNS = [
+		[0, 1, 2],
+		[3, 4, 5],
+		[6, 7, 8],
+		[0, 3, 6],
+		[1, 4, 7],
+		[2, 5, 8],
+		[0, 4, 8],
+		[2, 4, 6],
+	];
+
 	const defineWinner = () => {
-		winPatterns.forEach((winPattern) => {
+		WIN_PATTERNS.forEach((winPattern) => {
 			if (winPattern.every((item) => field[item] === currentPlayer)) {
-				setIsGameEnded(true);
-				setWinner(currentPlayer);
+				store.dispatch({ type: 'END_GAME', payload: currentPlayer });
 			}
 		});
-		if (field.every((item) => !!item)) setIsDraw(true);
+		if (field.every((item) => !!item)) store.dispatch({ type: 'END_GAME_DRAW' });
 	};
 
 	const fieldButtonHandle = (id) => {
-		setField((prev) => {
-			if (!prev[id]) {
-				prev[id] = currentPlayer;
-				setCurrentPlayer((prevPlayer) => {
-					prevPlayer === 'X' ? (prevPlayer = 'O') : (prevPlayer = 'X');
-					return prevPlayer;
-				});
-			}
+		if (!field[id]) {
+			setFieldState(store.getState());
+			store.dispatch({ type: 'SET_FIELD', payload: id });
+			store.dispatch({ type: 'CHANGE_CURRENT_PLAYER' });
 			defineWinner();
-			return prev;
-		});
+			setFieldState(store.getState());
+			console.log(store.getState().info);
+		}
 	};
 
 	return (
-		<FieldLayout
-			field={field}
-			fieldButtonHandle={fieldButtonHandle}
-			isGameEnded={isGameEnded}
-			isDraw={isDraw}
-		/>
+		<>
+			<div>{info}</div>
+			<div className={styles.fieldContainer}>
+				{field.map((el, i) => {
+					return (
+						<button
+							className={styles.fieldButton}
+							key={i}
+							id={i}
+							disabled={isGameEnded || isDraw}
+							onClick={() => fieldButtonHandle(i)}
+						>
+							{el}
+						</button>
+					);
+				})}
+			</div>
+		</>
 	);
-};
-
-Field.propTypes = {
-	field: PropTypes.array,
-	setField: PropTypes.func,
-	currentPlayer: PropTypes.string,
-	setCurrentPlayer: PropTypes.func,
-	isGameEnded: PropTypes.bool,
-	setIsGameEnded: PropTypes.func,
-	setWinner: PropTypes.func,
-	isDraw: PropTypes.bool,
-	setIsDraw: PropTypes.func,
-	winPatterns: PropTypes.array,
 };

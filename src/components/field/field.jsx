@@ -28,12 +28,10 @@ export const Field = () => {
 
 	const fieldButtonHandle = (id) => {
 		if (!field[id]) {
-			setFieldState(store.getState());
 			store.dispatch({ type: 'SET_FIELD', payload: id });
 			store.dispatch({ type: 'CHANGE_CURRENT_PLAYER' });
 			defineWinner();
 			setFieldState(store.getState());
-			console.log(store.getState().info);
 		}
 	};
 
